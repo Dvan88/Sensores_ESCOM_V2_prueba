@@ -40,6 +40,7 @@ import ovh.gabrielhuav.sensores_escom_v2.presentation.locations.outdoor.OSMMapAc
 import ovh.gabrielhuav.sensores_escom_v2.presentation.locations.buildings.gobierno.EdificioGobierno
 import ovh.gabrielhuav.sensores_escom_v2.presentation.locations.lab.LaboratorioPosgradoActivity
 import ovh.gabrielhuav.sensores_escom_v2.presentation.locations.outdoor.GlobalMapActivity
+import ovh.gabrielhuav.sensores_escom_v2.presentation.locations.buildings.gobierno.Canchasgestion
 import kotlin.collections.iterator
 
 class GameplayActivity : AppCompatActivity(),
@@ -290,6 +291,7 @@ class GameplayActivity : AppCompatActivity(),
                         "osm_view" -> startOSMActivity()
                         "palapas_isc" -> startPalapasISCActivity()
                         "edificio_gobierno" -> startEdificioGobiernoActivity()
+                        "canchas_gestion" -> startCanchasGestionActivity()
                         "cancha_ia" -> startCanchaIAActivity()
                         "cidetec" -> startCidetecActivity()
                         "labrv" -> startlabrvActivity()
@@ -663,6 +665,14 @@ class GameplayActivity : AppCompatActivity(),
                     }
                 }
 
+            position.first == 5 && position.second == 35 -> {
+                canChangeMap = true
+                targetDestination = "canchas_gestion" // Identificador único
+                runOnUiThread {
+                    Toast.makeText(this, "Presiona A para ir a Canchas Gestión", Toast.LENGTH_SHORT).show()
+                }
+            }
+
                 position.first == 24 && position.second == 12 -> {
                     canChangeMap = true
                     targetDestination = "laboratorio_posgrado"
@@ -986,6 +996,19 @@ class GameplayActivity : AppCompatActivity(),
                 Log.e(TAG, "Error en onConfigurationChanged: ${e.message}")
             }
         }
+
+    private fun startCanchasGestionActivity() {
+        val intent = Intent(this, Canchasgestion::class.java).apply {
+            putExtra("PLAYER_NAME", playerName)
+            putExtra("IS_SERVER", gameState.isServer)
+            putExtra("IS_CONNECTED", gameState.isConnected)
+            putExtra("INITIAL_POSITION", Pair(20, 20))
+            putExtra("PREVIOUS_POSITION", gameState.playerPosition)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        }
+        startActivity(intent)
+        finish()
+    }
 
         private fun showToast(message: String) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

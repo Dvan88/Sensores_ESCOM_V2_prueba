@@ -87,6 +87,7 @@ class MapMatrixProvider {
         const val MAP_ESIME = "esime_zacatenco"
         const val MAP_PALAPAS_ISC = "escom_palapas_isc"
         const val MAP_EDIFICIO_GOBIERNO = "escom_edificio_gobierno"
+        const val MAP_CANCHAS_GESTION = "escom_canchas_gestion"
         const val MAP_BIBLIOTECA = "escom_biblioteca"
         const val MAP_ENCB = "encb"
         const val MAP_PLAZA_TORRES = "plaza_torres"
@@ -169,7 +170,9 @@ class MapMatrixProvider {
                 lowerMap.contains("cancha") || lowerMap.contains("cancha_ia") -> MAP_CANCHA_IA
 
                 lowerMap.contains("gobierno") || lowerMap.contains("edificio_gobierno") -> MAP_EDIFICIO_GOBIERNO
+                lowerMap.contains("canchas_gestion") -> MAP_CANCHAS_GESTION
                 lowerMap.contains("biblioteca") -> MAP_BIBLIOTECA
+                lowerMap.contains("canchas_gestion") -> MAP_CANCHAS_GESTION
 
                 //ESIME
                 lowerMap.contains("esime") || lowerMap.contains("esime_zacatenco") -> MAP_ESIME
@@ -321,6 +324,7 @@ class MapMatrixProvider {
                 MAP_CANCHA_IA -> createCanchaIAMatrix()
                 MAP_PALAPAS_ISC -> createPalapasISCMatrix()
                 MAP_EDIFICIO_GOBIERNO -> createEdificioGobiernoMatrix()
+                MAP_CANCHAS_GESTION -> createCanchaGestionMatrix()
                 MAP_BIBLIOTECA -> createBibliotecaMatrix()
                 MAP_ESIA -> createESIAMatrix()
                 MAP_ENCB -> createEncbMatrix()
@@ -398,6 +402,7 @@ class MapMatrixProvider {
             // Añadir punto interactivo para el nuevo mapa de Estacionamiento
             matrix[5][25] = INTERACTIVE // Entrada al Estacionamiento de ESCOM
             matrix[28][33] = INTERACTIVE
+            matrix[35][5] = INTERACTIVE // Punto azul para entrar a Canchas Gestión
             return matrix
         }
 
@@ -3018,6 +3023,18 @@ class MapMatrixProvider {
             return matrix
         }
 
+        private fun createCanchaGestionMatrix(): Array<Array<Int>> {
+            val matrix = Array(MAP_HEIGHT) { Array(MAP_WIDTH) { PATH } }    // Bordes exteriores
+            for (i in 0 until MAP_HEIGHT) {
+                for (j in 0 until MAP_WIDTH) {
+                    if (i == 0 || i == MAP_HEIGHT - 1 || j == 0 || j == MAP_WIDTH - 1) {
+                        matrix[i][j] = WALL
+                    }
+                }
+            }
+            return matrix
+        }
+
         /**
          * NUEVO MAPA: Biblioteca
          */
@@ -3877,6 +3894,10 @@ class MapMatrixProvider {
                 return MAP_MAIN
             }
 
+            if (mapId == MAP_MAIN && x == 5 && y == 35) {
+                return MAP_CANCHAS_GESTION
+            }
+
             if (mapId == MAP_MAIN && x == 15 && y == 35) {
                 return MAP_BIBLIOTECA
             }
@@ -3997,6 +4018,7 @@ class MapMatrixProvider {
 
                 MAP_PALAPAS_ISC -> Pair(38, 38) // Posición inicial dentro de palapas ISC
                 MAP_EDIFICIO_GOBIERNO -> Pair(17, 5)  // Posición cerca de la entrada
+                MAP_CANCHAS_GESTION -> Pair(20, 20) // Posición cerca de
                 MAP_BIBLIOTECA -> Pair(17, 5)  // Posición cerca de la entrada
                 MAP_PLAZA_TORRES -> Pair(18, 18) //Entrada ESCOM
                 MAP_PLAZA_TORRES_N1 -> Pair(20, 16) //Entrada cinepolis plaza torres
