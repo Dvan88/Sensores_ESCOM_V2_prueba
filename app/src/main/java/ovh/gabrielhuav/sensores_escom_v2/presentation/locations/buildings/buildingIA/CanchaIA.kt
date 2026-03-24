@@ -53,6 +53,7 @@ class CanchaIA : AppCompatActivity(),
 
     // Estado del juego
     private var gameState = BuildingNumber2.GameState()
+    private var isGameShowing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +71,7 @@ class CanchaIA : AppCompatActivity(),
 
             mapView.post {
                 // Configurar el mapa para Cancha IA
-                mapView.setCurrentMap(MapMatrixProvider.Companion.MAP_CANCHA_IA, R.drawable.escom_cancha_ia) // CAMBIAR DRAWABLE AQUI TAMBIEN
+                mapView.setCurrentMap(MapMatrixProvider.Companion.MAP_CANCHA_IA, R.drawable.escom_cancha_ia)
 
                 mapView.playerManager.apply {
                     setCurrentMap(MapMatrixProvider.Companion.MAP_CANCHA_IA)
@@ -145,7 +146,6 @@ class CanchaIA : AppCompatActivity(),
         btnBackToHome = findViewById(R.id.button_back_to_home)
         tvBluetoothStatus = findViewById(R.id.tvBluetoothStatus)
 
-        // Botones extra del layout (opcionales en funcionalidad)
         buttonA = findViewById(R.id.button_a)
         btnB1 = findViewById(R.id.button_small_1)
         btnB2 = findViewById(R.id.button_small_2)
@@ -181,14 +181,12 @@ class CanchaIA : AppCompatActivity(),
         btnBackToHome.setOnClickListener { returnToMainMap() }
         btnB2.setOnClickListener { returnToMainMap() }
 
-        // Botón de acción genérico (por si quieres poner algo interactivo después)
         buttonA.setOnClickListener {
             Toast.makeText(this, "¡Estás en la Cancha de IA!", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun returnToMainMap() {
-        // Por defecto regresa al pasillo principal o a donde decidas
         val previousPosition = Pair(15, 16)
 
         val intent = Intent(this, GameplayActivity::class.java).apply {
@@ -220,15 +218,25 @@ class CanchaIA : AppCompatActivity(),
                 serverConnectionManager.sendUpdateMessage(playerName, position, MapMatrixProvider.Companion.MAP_CANCHA_IA)
             }
 
-            // --- DETECCIÓN DEL JUEGO DE BASKET ---
-            if (x == 13 && y == 14) {
+            // --- DETECCIÓN DEL JUEGO DE BASKET (Rango ampliado y control de estado) ---
+            if (x in 12..14 && y in 13..15) {
                 showBasketballGame()
             }
         }
     }
 
     private fun showBasketballGame() {
+        if (isGameShowing) return
+        isGameShowing = true
+        
         val gameDialog = BasketballGame(this)
+        gameDialog.setOnDismissListener { 
+            isGameShowing = false 
+            // Mover al jugador un paso atrás para que no se reabra instantáneamente
+            val currentPos = gameState.playerPosition
+            val safetyPos = Pair(currentPos.first, currentPos.second + 1)
+            movementManager.setPosition(safetyPos)
+        }
         gameDialog.show()
     }
 
@@ -245,7 +253,6 @@ class CanchaIA : AppCompatActivity(),
         runOnUiThread { tvBluetoothStatus.text = status }
     }
 
-    // Implementación de Listeners (WebSocket, Bluetooth, Transition)
     override fun onMapTransitionRequested(targetMap: String, initialPosition: Pair<Int, Int>) {
         if (targetMap == MapMatrixProvider.Companion.MAP_MAIN) {
             returnToMainMap()
@@ -256,11 +263,8 @@ class CanchaIA : AppCompatActivity(),
         runOnUiThread {
             try {
                 val jsonObject = JSONObject(message)
-                // Lógica simplificada de recepción de posiciones
                 if (jsonObject.getString("type") == "update" || jsonObject.getString("type") == "positions") {
-                    // Aquí va la lógica estándar de actualizar otros jugadores (similar a PalapasIA)
-                    // Si necesitas el código completo de parsing avísame, pero es igual al de PalapasIA
-                    // solo asegurándote de filtrar por MAP_CANCHA_IA
+                    // Lógica de jugadores remotos si es necesaria
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error message: ${e.message}")
@@ -268,7 +272,6 @@ class CanchaIA : AppCompatActivity(),
         }
     }
 
-    // Callbacks vacíos o básicos requeridos por las interfaces
     override fun onBluetoothDeviceConnected(device: BluetoothDevice) {}
     override fun onBluetoothConnectionFailed(error: String) {}
     override fun onConnectionComplete() {}
@@ -303,5 +306,3 @@ class CanchaIA : AppCompatActivity(),
         private const val TAG = "Cancha IA"
     }
 }
-
-

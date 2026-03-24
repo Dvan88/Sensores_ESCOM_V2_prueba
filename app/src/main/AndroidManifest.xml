@@ -132,6 +132,10 @@
             android:name=".presentation.locations.buildings.buildingIA.PalapasIA"
             android:configChanges="orientation|screenSize|keyboardHidden" />
         <activity
+            android:name=".presentation.locations.buildings.buildingIA.CanchaIA"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false" />
+        <activity
             android:name=".presentation.components.PalapasISC"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false" />
@@ -167,7 +171,7 @@
 
         <activity
             android:name=".presentation.locations.buildings.gobierno.Canchasgestion"
-            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false" />
     </application>
 
