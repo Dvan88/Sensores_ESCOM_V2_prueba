@@ -60,12 +60,9 @@ class Canchasgestion : AppCompatActivity(),
             mapView.post {
                 // Configurar el mapa con la constante que creamos
                 mapView.setCurrentMap(MapMatrixProvider.Companion.MAP_CANCHAS_GESTION, R.drawable.escom_canchas_gestion)
+                mapView.playerManager.setCurrentMap(MapMatrixProvider.Companion.MAP_CANCHAS_GESTION)
+                mapView.updateLocalPlayerPosition(gameState.playerPosition)
 
-                mapView.playerManager.apply {
-                    setCurrentMap(MapMatrixProvider.Companion.MAP_CANCHAS_GESTION)
-                    localPlayerId = playerName
-                    updateLocalPlayerPosition(gameState.playerPosition)
-                }
 
                 if (gameState.isConnected) {
                     serverConnectionManager.sendUpdateMessage(playerName, gameState.playerPosition, MapMatrixProvider.Companion.MAP_CANCHAS_GESTION)
@@ -82,11 +79,12 @@ class Canchasgestion : AppCompatActivity(),
 
         if (savedInstanceState == null) {
             gameState.isConnected = intent.getBooleanExtra("IS_CONNECTED", false)
-            gameState.playerPosition = intent.getSerializableExtra("INITIAL_POSITION") as? Pair<Int, Int> ?: Pair(20, 20)
+            gameState.playerPosition = intent.getSerializableExtra("INITIAL_POSITION") as? Pair<Int, Int> ?: Pair(38, 20)
         }
 
         initializeViews()
         initializeManagers()
+        movementManager.setPosition(gameState.playerPosition)
         setupButtonListeners()
 
         if (gameState.isConnected) connectToOnlineServer()
@@ -111,6 +109,7 @@ class Canchasgestion : AppCompatActivity(),
             setListener(this@Canchasgestion)
         }
         serverConnectionManager = ServerConnectionManager(this, onlineServerManager)
+        mapView.playerManager.localPlayerId = playerName
         movementManager = MovementManager(mapView) { position -> updatePlayerPosition(position) }
         mapView.setMapTransitionListener(this)
     }
@@ -151,6 +150,15 @@ class Canchasgestion : AppCompatActivity(),
     override fun onMessageReceived(message: String) {
         // Aquí puedes copiar la lógica de update de PalapasIA si quieres ver a otros jugadores
         mapView.invalidate()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        movementManager.setPosition(gameState.playerPosition)
+
+        if (gameState.isConnected) {
+            connectToOnlineServer()
+        }
     }
 
     // Métodos requeridos por las interfaces (pueden quedar vacíos por ahora)

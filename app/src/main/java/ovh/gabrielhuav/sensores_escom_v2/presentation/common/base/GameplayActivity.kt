@@ -665,7 +665,7 @@ class GameplayActivity : AppCompatActivity(),
                     }
                 }
 
-            position.first == 5 && position.second == 35 -> {
+            position.first == 8 && position.second == 36 -> {
                 canChangeMap = true
                 targetDestination = "canchas_gestion" // Identificador único
                 runOnUiThread {
@@ -1002,7 +1002,7 @@ class GameplayActivity : AppCompatActivity(),
             putExtra("PLAYER_NAME", playerName)
             putExtra("IS_SERVER", gameState.isServer)
             putExtra("IS_CONNECTED", gameState.isConnected)
-            putExtra("INITIAL_POSITION", Pair(20, 20))
+            putExtra("INITIAL_POSITION", Pair(38, 20))
             putExtra("PREVIOUS_POSITION", gameState.playerPosition)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }

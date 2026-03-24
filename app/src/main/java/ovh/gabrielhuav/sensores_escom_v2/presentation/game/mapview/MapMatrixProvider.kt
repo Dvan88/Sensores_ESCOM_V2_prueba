@@ -402,7 +402,7 @@ class MapMatrixProvider {
             // Añadir punto interactivo para el nuevo mapa de Estacionamiento
             matrix[5][25] = INTERACTIVE // Entrada al Estacionamiento de ESCOM
             matrix[28][33] = INTERACTIVE
-            matrix[35][5] = INTERACTIVE // Punto azul para entrar a Canchas Gestión
+            matrix[36][8] = INTERACTIVE // Punto azul para entrar a Canchas Gestión
             return matrix
         }
 
@@ -3894,7 +3894,7 @@ class MapMatrixProvider {
                 return MAP_MAIN
             }
 
-            if (mapId == MAP_MAIN && x == 5 && y == 35) {
+            if (mapId == MAP_MAIN && x == 8 && y == 36) {
                 return MAP_CANCHAS_GESTION
             }
 
