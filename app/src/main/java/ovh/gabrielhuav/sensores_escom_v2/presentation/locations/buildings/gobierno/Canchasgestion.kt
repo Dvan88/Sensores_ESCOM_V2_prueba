@@ -21,6 +21,7 @@ import ovh.gabrielhuav.sensores_escom_v2.presentation.components.BuildingNumber2
 import ovh.gabrielhuav.sensores_escom_v2.presentation.game.mapview.MapMatrixProvider
 import ovh.gabrielhuav.sensores_escom_v2.presentation.game.mapview.MapView
 import ovh.gabrielhuav.sensores_escom_v2.presentation.common.base.GameplayActivity
+import ovh.gabrielhuav.sensores_escom_v2.presentation.game.penales.PenalesActivity
 
 class Canchasgestion : AppCompatActivity(),
     BluetoothManager.BluetoothManagerCallback,
@@ -131,8 +132,16 @@ class Canchasgestion : AppCompatActivity(),
         btnB2.setOnClickListener { finish() }
 
         btnA.setOnClickListener {
-            if (isAtExitPoint) {
-                onMapTransitionRequested(MapMatrixProvider.Companion.MAP_MAIN, Pair(8, 36))
+            if (canChangeMap) {
+                when (targetDestination) {"minijuego_penales" -> {
+                    Log.d("Penales", "Abriendo minijuego...")
+                    val intent = Intent(this, PenalesActivity::class.java)
+                    startActivity(intent)
+                }
+                    MapMatrixProvider.Companion.MAP_MAIN -> {
+                        onMapTransitionRequested(MapMatrixProvider.Companion.MAP_MAIN, Pair(8, 35))
+                    }
+                }
             }
         }
     }
@@ -140,31 +149,30 @@ class Canchasgestion : AppCompatActivity(),
     private fun updatePlayerPosition(position: Pair<Int, Int>) {
         val x = position.first
         val y = position.second
-        val targetMap = MapMatrixProvider.isMapTransitionPoint(MapMatrixProvider.MAP_CANCHAS_GESTION, x, y)
 
-        if (targetMap != null) {
-            isAtExitPoint = true
-            pendingMapDestination = targetMap
-
-            runOnUiThread {
-                Toast.makeText(this, "Presiona A para salir", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            isAtExitPoint = false
-            pendingMapDestination = null
-        }
         runOnUiThread {
             gameState.playerPosition = position
             mapView.updateLocalPlayerPosition(position)
             mapView.forceRecenterOnPlayer()
-            if (position.first == 35 && position.second == 20) {
+
+            // 1. Detección del Minijuego (Rango 18-20 en X, 17-19 en Y)
+            if ((x in 18..20) && (y in 17..19)) {
                 canChangeMap = true
-                targetDestination = "main_map" // Identificador para volver
-                Toast.makeText(this, "Presiona A para salir", Toast.LENGTH_SHORT).show()
-            } else {
+                targetDestination = "minijuego_penales"
+                Toast.makeText(this, "Presiona A para Jugar Penales", Toast.LENGTH_SHORT).show()
+            }
+            // 2. Detección de Salida (Rango 34-36 en X, 19-21 en Y)
+            else if ((x in 34..36) && (y in 19..21)) {
+                canChangeMap = true
+                targetDestination = MapMatrixProvider.Companion.MAP_MAIN
+                Toast.makeText(this, "Presiona A para Salir", Toast.LENGTH_SHORT).show()
+            }
+            // 3. Fuera de puntos interactivos
+            else {
                 canChangeMap = false
                 targetDestination = null
             }
+
             if (gameState.isConnected) {
                 serverConnectionManager.sendUpdateMessage(playerName, position, MapMatrixProvider.Companion.MAP_CANCHAS_GESTION)
             }

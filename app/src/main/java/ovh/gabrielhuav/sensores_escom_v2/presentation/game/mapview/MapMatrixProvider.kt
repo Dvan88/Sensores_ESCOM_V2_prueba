@@ -3901,8 +3901,9 @@ class MapMatrixProvider {
             }
 
             // Dentro de isMapTransitionPoint en MapMatrixProvider.kt
-            if (mapId == MAP_CANCHAS_GESTION && x == 35 && y == 20) {
-                return MAP_MAIN
+            if (mapId == MAP_CANCHAS_GESTION) {
+                if ( x == 35 && y == 20) return MAP_MAIN
+                if ( x == 19 && y == 18) return "minijuego_penales"
             }
 
             if (mapId == MAP_MAIN && x == 15 && y == 35) {
