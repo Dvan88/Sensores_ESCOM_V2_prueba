@@ -667,13 +667,14 @@ class GameplayActivity : AppCompatActivity(),
 
             position.first == 8 && position.second == 36 -> {
                 canChangeMap = true
-                targetDestination = "canchas_gestion" // Identificador único
+                targetDestination = "canchas_gestion"
                 runOnUiThread {
-                    Toast.makeText(this, "Presiona A para ir a Canchas Gestión", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Presiona A para ir a Canchas de Gestión", Toast.LENGTH_SHORT).show()
                 }
             }
 
-                position.first == 24 && position.second == 12 -> {
+
+            position.first == 24 && position.second == 12 -> {
                     canChangeMap = true
                     targetDestination = "laboratorio_posgrado"
                     runOnUiThread {
@@ -684,6 +685,8 @@ class GameplayActivity : AppCompatActivity(),
                         ).show()
                     }
                 }
+
+
                 else -> {
                     canChangeMap = false
                     targetDestination = null

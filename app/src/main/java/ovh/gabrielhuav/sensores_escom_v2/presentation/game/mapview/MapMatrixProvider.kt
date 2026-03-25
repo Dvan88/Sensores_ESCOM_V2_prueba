@@ -3032,6 +3032,8 @@ class MapMatrixProvider {
                     }
                 }
             }
+            matrix[20][35] = INTERACTIVE
+            matrix[19][18] = INTERACTIVE
             return matrix
         }
 
@@ -3898,6 +3900,11 @@ class MapMatrixProvider {
                 return MAP_CANCHAS_GESTION
             }
 
+            // Dentro de isMapTransitionPoint en MapMatrixProvider.kt
+            if (mapId == MAP_CANCHAS_GESTION && x == 35 && y == 20) {
+                return MAP_MAIN
+            }
+
             if (mapId == MAP_MAIN && x == 15 && y == 35) {
                 return MAP_BIBLIOTECA
             }
@@ -4018,7 +4025,7 @@ class MapMatrixProvider {
 
                 MAP_PALAPAS_ISC -> Pair(38, 38) // Posición inicial dentro de palapas ISC
                 MAP_EDIFICIO_GOBIERNO -> Pair(17, 5)  // Posición cerca de la entrada
-                MAP_CANCHAS_GESTION -> Pair(20, 20) // Posición cerca de
+                MAP_CANCHAS_GESTION -> Pair(35, 20) // Posición cerca de
                 MAP_BIBLIOTECA -> Pair(17, 5)  // Posición cerca de la entrada
                 MAP_PLAZA_TORRES -> Pair(18, 18) //Entrada ESCOM
                 MAP_PLAZA_TORRES_N1 -> Pair(20, 16) //Entrada cinepolis plaza torres

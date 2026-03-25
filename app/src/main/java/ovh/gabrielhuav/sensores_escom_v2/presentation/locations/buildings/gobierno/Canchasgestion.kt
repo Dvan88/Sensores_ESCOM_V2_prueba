@@ -20,6 +20,7 @@ import ovh.gabrielhuav.sensores_escom_v2.presentation.common.managers.ServerConn
 import ovh.gabrielhuav.sensores_escom_v2.presentation.components.BuildingNumber2
 import ovh.gabrielhuav.sensores_escom_v2.presentation.game.mapview.MapMatrixProvider
 import ovh.gabrielhuav.sensores_escom_v2.presentation.game.mapview.MapView
+import ovh.gabrielhuav.sensores_escom_v2.presentation.common.base.GameplayActivity
 
 class Canchasgestion : AppCompatActivity(),
     BluetoothManager.BluetoothManagerCallback,
@@ -39,9 +40,15 @@ class Canchasgestion : AppCompatActivity(),
     private lateinit var btnBackToHome: Button
     private lateinit var tvBluetoothStatus: TextView
     private lateinit var btnB2: Button
-
+    private lateinit var btnA: Button
     private lateinit var playerName: String
     private var gameState = BuildingNumber2.GameState()
+
+    private var canChangeMap = false
+    private var targetDestination: String? = null
+    private var isAtExitPoint = false
+    private var pendingMapDestination: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,16 +126,45 @@ class Canchasgestion : AppCompatActivity(),
         btnSouth.setOnTouchListener { _, event -> movementManager.handleMovement(event, 0, 1); true }
         btnEast.setOnTouchListener { _, event -> movementManager.handleMovement(event, 1, 0); true }
         btnWest.setOnTouchListener { _, event -> movementManager.handleMovement(event, -1, 0); true }
-
+        btnA = findViewById(R.id.button_a)
         btnBackToHome.setOnClickListener { finish() }
         btnB2.setOnClickListener { finish() }
+
+        btnA.setOnClickListener {
+            if (isAtExitPoint) {
+                onMapTransitionRequested(MapMatrixProvider.Companion.MAP_MAIN, Pair(8, 36))
+            }
+        }
     }
 
     private fun updatePlayerPosition(position: Pair<Int, Int>) {
+        val x = position.first
+        val y = position.second
+        val targetMap = MapMatrixProvider.isMapTransitionPoint(MapMatrixProvider.MAP_CANCHAS_GESTION, x, y)
+
+        if (targetMap != null) {
+            isAtExitPoint = true
+            pendingMapDestination = targetMap
+
+            runOnUiThread {
+                Toast.makeText(this, "Presiona A para salir", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            isAtExitPoint = false
+            pendingMapDestination = null
+        }
         runOnUiThread {
             gameState.playerPosition = position
             mapView.updateLocalPlayerPosition(position)
             mapView.forceRecenterOnPlayer()
+            if (position.first == 35 && position.second == 20) {
+                canChangeMap = true
+                targetDestination = "main_map" // Identificador para volver
+                Toast.makeText(this, "Presiona A para salir", Toast.LENGTH_SHORT).show()
+            } else {
+                canChangeMap = false
+                targetDestination = null
+            }
             if (gameState.isConnected) {
                 serverConnectionManager.sendUpdateMessage(playerName, position, MapMatrixProvider.Companion.MAP_CANCHAS_GESTION)
             }
@@ -169,6 +205,16 @@ class Canchasgestion : AppCompatActivity(),
     override fun onDeviceConnected(device: BluetoothDevice) {}
     override fun onPositionReceived(device: BluetoothDevice, x: Int, y: Int) {}
     override fun onMapTransitionRequested(targetMap: String, initialPosition: Pair<Int, Int>) {
-        finish()
+        if (targetMap == MapMatrixProvider.Companion.MAP_MAIN) {
+            val intent = Intent(this, GameplayActivity::class.java).apply {
+                putExtra("PLAYER_NAME", playerName)
+                putExtra("IS_CONNECTED", gameState.isConnected)
+                // Ponemos Y=35 para que aparezca arriba del punto azul de entrada (que está en 36)
+                putExtra("INITIAL_POSITION", Pair(8, 35))
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            startActivity(intent)
+            finish()
+        }
     }
 }
